@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<robot name="cube_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="properties.xacro"/>
+
+  <material name="body_blue">
+    <color rgba="0.1 0.35 0.8 1"/>
+  </material>
+  <material name="wheel_dark">
+    <color rgba="0.08 0.08 0.08 1"/>
+  </material>
+  <material name="pusher_orange">
+    <color rgba="1 0.5 0.05 1"/>
+  </material>
+
+  <!-- Homojen kutu icin atalet hesabi -->
+  <xacro:macro name="box_inertial" params="mass x y z">
+    <inertial>
+      <mass value="${mass}"/>
+      <inertia
+        ixx="${mass * (y*y + z*z) / 12}"
+        iyy="${mass * (x*x + z*z) / 12}"
+        izz="${mass * (x*x + y*y) / 12}"
+        ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- Robotun zemin seviyesindeki referansi -->
+  <link name="base_footprint"/>
+
+  <!-- Govde -->
+  <link name="base_link">
+    <xacro:box_inertial
+      mass="${chassis_mass}"
+      x="${chassis_length}"
+      y="${chassis_width}"
+      z="${chassis_height}"/>
+
+    <visual>
+      <geometry>
+        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+      </geometry>
+      <material name="body_blue"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 ${chassis_z}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Sol ve sag tekerlek icin ortak tanim -->
+  <xacro:macro name="wheel" params="name side">
+    <link name="${name}_wheel_link">
+      <inertial>
+        <mass value="${wheel_mass}"/>
+        <inertia
+          ixx="${wheel_mass * (3*wheel_radius*wheel_radius + wheel_width*wheel_width) / 12}"
+          iyy="${wheel_mass * wheel_radius*wheel_radius / 2}"
+          izz="${wheel_mass * (3*wheel_radius*wheel_radius + wheel_width*wheel_width) / 12}"
+          ixy="0" ixz="0" iyz="0"/>
+      </inertial>
+
+      <visual>
+        <origin rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        </geometry>
+        <material name="wheel_dark"/>
+      </visual>
+
+      <collision>
+        <origin rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${name}_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${name}_wheel_link"/>
+      <origin
+        xyz="${wheel_x} ${side * wheel_separation / 2} ${wheel_radius - chassis_z}"
+        rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="5" velocity="30"/>
+      <dynamics damping="0.02" friction="0"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:wheel name="left" side="1"/>
+  <xacro:wheel name="right" side="-1"/>
+
+  <!-- Dusuk surtunmeli kuresel arka destek -->
+  <link name="caster_link">
+    <inertial>
+      <mass value="${caster_mass}"/>
+      <inertia
+        ixx="${0.4 * caster_mass * caster_radius * caster_radius}"
+        iyy="${0.4 * caster_mass * caster_radius * caster_radius}"
+        izz="${0.4 * caster_mass * caster_radius * caster_radius}"
+        ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+    <visual>
+      <geometry><sphere radius="${caster_radius}"/></geometry>
+      <material name="wheel_dark"/>
+    </visual>
+    <collision>
+      <geometry><sphere radius="${caster_radius}"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="caster_joint" type="fixed">
+    <parent link="base_link"/>
+   <child link="caster_link"/>
+    <origin xyz="${caster_x} 0 ${caster_radius - chassis_z}"/>
+  </joint>
+
+  <gazebo reference="caster_link">
+    <mu1>0.001</mu1>
+    <mu2>0.001</mu2>
+  </gazebo>
+
+  <!-- Sabit on itici -->
+  <link name="pusher_link">
+    <xacro:box_inertial
+      mass="${pusher_mass}"
+      x="${pusher_thickness}"
+      y="${pusher_width}"
+      z="${pusher_height}"/>
+    <visual>
+      <geometry>
+        <box size="${pusher_thickness} ${pusher_width} ${pusher_height}"/>
+      </geometry>
+      <material name="pusher_orange"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${pusher_thickness} ${pusher_width} ${pusher_height}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="pusher_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="pusher_link"/>
+    <origin
+      xyz="${chassis_length/2 + pusher_thickness/2} 0 ${pusher_z - chassis_z}"/>
+  </joint>
+
+<xacro:include filename="gazebo_plugins.xacro"/>
+  <xacro:include filename="lidar.xacro"/>
+  <xacro:include filename="camera.xacro"/>
+</robot>
