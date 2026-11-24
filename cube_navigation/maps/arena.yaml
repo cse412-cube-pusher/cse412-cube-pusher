@@ -1,0 +1,7 @@
+image: arena.pgm
+mode: trinary
+resolution: 0.050
+origin: [-2.983, -1.982, 0] # SLAM orijini robot  baslangiciydi, hocanin paylastigi dokumana gore olmasi gereken yere ayarlandi
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
