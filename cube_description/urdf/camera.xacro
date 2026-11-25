@@ -1,44 +1,38 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-
+<robot>
   <link name="camera_link">
     <inertial>
-      <origin xyz="-0.015 0 0"/>
-      <mass value="0.03"/>
-      <inertia ixx="0.00000625" iyy="0.0000045"
-               izz="0.00000625" ixy="0" ixz="0" iyz="0"/>
+      <origin xyz="-0.015 0 0" />
+      <mass value="0.03" />
+      <inertia ixx="0.00000625" iyy="0.0000045" izz="0.00000625" ixy="0" ixz="0" iyz="0" />
     </inertial>
     <visual>
-      <origin xyz="-0.015 0 0"/>
+      <origin xyz="-0.015 0 0" />
       <geometry>
-        <box size="0.03 0.04 0.03"/>
+        <box size="0.03 0.04 0.03" />
       </geometry>
       <material name="camera_dark">
-        <color rgba="0.15 0.15 0.15 1"/>
+        <color rgba="0.15 0.15 0.15 1" />
       </material>
     </visual>
     <collision>
-      <origin xyz="-0.015 0 0"/>
+      <origin xyz="-0.015 0 0" />
       <geometry>
-        <box size="0.03 0.04 0.03"/>
+        <box size="0.03 0.04 0.03" />
       </geometry>
     </collision>
   </link>
-
   <joint name="camera_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="camera_link"/>
-    <origin xyz="0.22 0 ${0.20 - chassis_z}" rpy="0 0.20 0"/>
+    <parent link="base_link" />
+    <child link="camera_link" />
+    <origin xyz="${chassis_x + 0.22} 0 ${0.20 - chassis_z}" rpy="0 0.20 0" />
   </joint>
-
-  <link name="camera_optical_frame"/>
-
+  <link name="camera_optical_frame" />
   <joint name="camera_optical_joint" type="fixed">
-    <parent link="camera_link"/>
-    <child link="camera_optical_frame"/>
-    <origin xyz="0 0 0" rpy="-1.57079632679 0 -1.57079632679"/>
+    <parent link="camera_link" />
+    <child link="camera_optical_frame" />
+    <origin xyz="0 0 0" rpy="-1.57079632679 0 -1.57079632679" />
   </joint>
-
   <gazebo reference="camera_link">
     <sensor name="front_camera" type="camera">
       <pose>0 0 0 0 0 0</pose>
@@ -62,5 +56,4 @@
       </camera>
     </sensor>
   </gazebo>
-
 </robot>
