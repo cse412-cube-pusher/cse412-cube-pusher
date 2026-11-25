@@ -119,3 +119,71 @@ otonom teslimi ve tekrarlı başarı testleri henüz doğrulanmamıştır.
 - WSLg penceresi görünmezse açık Linux işlerini kaydedip kapatın;
   PowerShell'de `wsl --shutdown` çalıştırıp Ubuntu'yu yeniden açın.
   Bu komut çalışan tüm WSL dağıtımlarını durdurur.
+
+<!-- robot-update-2026-11-25 -->
+
+## 25 Kasım 2026: aks referansı ve U itici
+
+base_footprint artık sürüş tekerleklerinin ortasında, zemin seviyesindedir.
+base_link aynı X-Y hizasında, z=0.13 m konumundadır.
+Şasi geometrisi ve kütle merkezi base_link'e göre x=-0.08 m'dedir.
+Mevcut parçaların şasiye göre yerleşimi korunmuştur.
+Spawn koordinatı (-2.4, -1.4) artık aks merkezini ifade eder.
+
+base_footprint'e göre nominal konumlar:
+- Sol/sağ tekerlek merkezi: (0, +/-0.15, 0.05) m.
+- Arka destek merkezi: (-0.23, 0, 0.025) m.
+- LiDAR: (-0.08, 0, 0.25) m.
+- Kamera optik merkezi: (0.14, 0, 0.20) m.
+
+### Sabit ve pasif U itici
+
+İtici öne açıktır; arka plaka ve iki sabit yan koldan oluşur.
+İç açıklık 0.22 m, dış genişlik 0.26 m, yükseklik 0.14 m'dir.
+Yan kolların uzunluğu 0.12 m, kalınlığı 0.02 m'dir.
+Hareketli eklem veya kavrama mekanizması yoktur.
+Bu ölçüler takımın tasarım seçimidir; şartnamenin zorunlu itici ölçüleri değildir.
+
+### Tekerlek temas modeli
+
+Tekerleklerin görsel genişliği 0.03 m olarak korunmuştur.
+Çarpışma silindirlerinin genişliği merkezde 0.006 m olarak modellenmiştir.
+Bu, temas geometrisinin yaklaşık temsilidir.
+Yarıçap 0.05 m, tekerlek merkezleri arası mesafe 0.30 m'dir.
+Kütle ve atalet değerleri görsel tekerlek boyutlarına göre korunmuştur.
+
+### Kontrol varsayılanları
+
+linear_speed=0.15 m/s, angular_speed=0.35 rad/s, key_timeout=0.25 s.
+Bunlar klavye kontrolü değerleridir; robotun azami hız limitleri değildir.
+Kısa zaman aşımı nedeniyle ilk klavye tekrarında duraksama görülebilir.
+Hemen durmak için Boşluk kullanılır.
+
+### Ölçümler ve manuel kontroller
+
+- Aks düzeltmesinden sonra yaklaşık 56.39 derecelik yerinde dönüşte
+  Gazebo X-Y yer değiştirmesi yaklaşık 0.37 mm ölçüldü.
+- 0.03 m çarpışma genişliğiyle: gerçek dönüş 56.39 derece,
+  odometri 51.36 derece; oransal fark yaklaşık %8.92.
+- 0.006 m çarpışma genişliğiyle: gerçek dönüş 54.10 derece,
+  odometri 53.08 derece; fark yaklaşık %1.88.
+- Ters yöndeki dönüşte: gerçek dönüş 50.73 derece,
+  odometri 49.77 derece; fark yaklaşık %1.88.
+- U iticiyle manuel denemede küp kollar arasında ilerledi,
+  robot geri çekildiğinde ayrıldı; gözle görülür patinaj bildirilmedi.
+
+Bu sonuçlar sınırlı manuel testlere aittir.
+Yük altında hassas odometri ve otonom teslim başarısı henüz doğrulanmamıştır.
+
+### Navigasyon ekibine geometri notu
+
+Boş robotu, görsel tekerlek genişliği dahil ihtiyatlı biçimde kapsayan
+dikdörtgen, base_footprint veya base_link X-Y düzleminde:
+
+[[-0.28, -0.165], [0.26, -0.165], [0.26, 0.165], [-0.28, 0.165]]
+
+Bu sınır en dış gövdeyi kapsar; U'nun iç boşluğunu da dolu kabul eder.
+Nav2 footprint/padding ayarları navigasyon ekibince güncellenmelidir.
+Ortalanmış, eksenlere paralel ve arka plakaya dayanmış 0.18 m küpün
+ön yüzü yaklaşık x=0.32 m'ye uzanır. Küp taşınırken boş robot footprint'i
+yükü tamamen kapsamaz; yükün konumu ve yönü ayrıca hesaba katılmalıdır.
