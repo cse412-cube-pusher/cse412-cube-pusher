@@ -13,8 +13,8 @@ class KeyboardTeleop(Node):
         super().__init__("keyboard_teleop")
         self.publisher = self.create_publisher(Twist, "/cmd_vel", 10)
         self.declare_parameter("linear_speed", 0.15)
-        self.declare_parameter("angular_speed", 0.5)
-        self.declare_parameter("key_timeout", 0.8)
+        self.declare_parameter("angular_speed", 0.35)
+        self.declare_parameter("key_timeout", 0.25)
 
         self.speed = float(self.get_parameter("linear_speed").value)
         self.turn = float(self.get_parameter("angular_speed").value)
